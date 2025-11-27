@@ -1,30 +1,46 @@
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
+// using System.Collections;
+// using System.Collections.Generic;
+// using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using TMPro;
 
 public class PlayerController : MonoBehaviour
 {
     // Rigidbody of the player.
-    private Rigidbody rb; 
+    private Rigidbody rb;                    
 
-    // Movement along X and Y axes.
+    // Number of picked-up objects
+    private int count;
+    
+    // Player movement axis
     private float movementX;
     private float movementY;
+    
+    // Speed at which the player moves (not initialized here, but inside Unity editor).
+    public float speed;    
 
-    // Speed at which the player moves.
-    public float speed = 0; 
+    // UI for the counter score.
+    public TextMeshProUGUI countText;
 
+    // UI for the winning message.
+    public GameObject winTextObject; 
+    
+    
+    
     // Start is called before the first frame update.
     void Start()
     {
-        // Get and store the Rigidbody component attached to the player.
-        rb = GetComponent<Rigidbody>();
+        rb = GetComponent<Rigidbody>();     // Get & store Rigidbody component attached to player.
+        count = 0;                          // Starting picked-up objects quantity. 
+        
+        SetCountText();                     // Screen starts with Count = 0.
+        winTextObject.SetActive(false);     // Victory message initially hidden.
     }
- 
-    // This function is called when a move input is detected.
-    void OnMove(InputValue movementValue)
+    
+    
+    // Function called when a move input is detected.
+    void OnMove(InputValue movementValue)   
     {
         // Convert the input value into a Vector2 for movement.
         Vector2 movementVector = movementValue.Get<Vector2>();
@@ -33,14 +49,55 @@ public class PlayerController : MonoBehaviour
         movementX = movementVector.x; 
         movementY = movementVector.y; 
     }
-
-    // FixedUpdate is called once per fixed frame-rate frame.
-    private void FixedUpdate() 
+    
+    
+    // Logic for the UI counter score.
+    void SetCountText()
+    {
+        // resulting int value converted to string text
+        countText.text = "Count: " + count.ToString();   
+        
+        if (count >= 8){                    // number of total pickup objects: 8.
+            winTextObject.SetActive(true);  // displays winning message
+        }
+    }
+   
+    
+    // Function activated when object enters another one.
+    void OnTriggerEnter(Collider other)     // other = pickup object
+    {
+        if (other.gameObject.CompareTag("PickUp")) {    // if is a "pickable" object   
+            other.gameObject.SetActive(false);          // picked-up object is vanished
+            count++;                                    // counting adds +1 to the score 
+            SetCountText();               // calls function for displaying updated score
+        }
+    }
+    
+    
+    // FixedUpdate called once per fixed frame-rate frame.
+    private void FixedUpdate()               
     {
         // Create a 3D movement vector using the X and Y inputs.
         Vector3 movement = new Vector3 (movementX, 0.0f, movementY);
 
         // Apply force to the Rigidbody to move the player.
-        rb.AddForce(movement * speed); 
+        // speed is controlled in the Unity panel
+        rb.AddForce(movement * speed);      
     }
+    
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
