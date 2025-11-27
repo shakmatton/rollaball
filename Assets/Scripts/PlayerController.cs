@@ -59,11 +59,12 @@ public class PlayerController : MonoBehaviour
         
         if (count >= 8){                    // number of total pickup objects: 8.
             winTextObject.SetActive(true);  // displays winning message
+            Destroy(GameObject.FindGameObjectWithTag("Enemy"));
         }
     }
    
     
-    // Function activated when object enters another one.
+    // Function activated when player object enters another pickup object space.
     void OnTriggerEnter(Collider other)     // other = pickup object
     {
         if (other.gameObject.CompareTag("PickUp")) {    // if is a "pickable" object   
@@ -83,6 +84,16 @@ public class PlayerController : MonoBehaviour
         // Apply force to the Rigidbody to move the player.
         // speed is controlled in the Unity panel
         rb.AddForce(movement * speed);      
+    }
+
+    private void OnCollisionEnter(Collision collision) {
+        if (collision.gameObject.CompareTag("Enemy"))
+        {
+            Destroy(gameObject);
+
+            winTextObject.gameObject.SetActive(true);
+            winTextObject.GetComponent<TextMeshProUGUI>().text = "You Lose!";
+        }        
     }
     
 }
